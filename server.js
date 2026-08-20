@@ -1,14 +1,23 @@
 const express = require('express');
 const cors = require('cors');
-const pool = require('./config/database');
 
 require('dotenv').config();
+
+const pool = require('./config/database');
+
+const empresaRoutes = require('./routes/empresaRoutes');
+const atividadeRoutes = require('./routes/atividadeRoutes');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
+// Rotas da API
+app.use('/', empresaRoutes);
+app.use('/', atividadeRoutes);
+
+// Rota de teste
 app.get('/status', async (req, res) => {
     try {
         const result = await pool.query('SELECT NOW()');
