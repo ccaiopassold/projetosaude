@@ -1,0 +1,437 @@
+/* ================================
+   CONFIGURAÇÕES GERAIS
+================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background-color: #FFFFFF;
+    color: #333333;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+}
+
+
+/* ================================
+   LAYOUT PRINCIPAL
+================================ */
+
+.pagina {
+    display: flex;
+    min-height: 100vh;
+}
+
+
+/* ================================
+   COLUNA PERFIL
+================================ */
+
+.perfil {
+    width: 280px;
+    min-height: 100vh;
+    background-color: #333333;
+    color: #FFFFFF;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    padding: 30px 25px 20px;
+}
+
+.perfil-conteudo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+/* ================================
+   EMPRESA
+================================ */
+
+.empresa {
+    text-align: center;
+}
+
+.logo {
+    width: 100%;
+    max-width: 270px;
+    height: auto;
+
+    object-fit: contain;
+
+    margin: 0 auto 20px;
+
+    display: block;
+}
+
+.empresa h1 {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+
+/* ================================
+   TOTAIS
+================================ */
+
+.totais {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+
+    margin-top: 45px;
+    margin-bottom: 40px;
+}
+
+.total {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    text-align: center;
+}
+
+.numero {
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.descricao {
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+
+/* ================================
+   BOTÃO ATIVIDADES
+================================ */
+
+.btn-atividades {
+    width: 100%;
+    padding: 13px;
+
+    background-color: #FFFFFF;
+    color: #333333;
+
+    border-radius: 5px;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: default;
+}
+
+.btn-atividades:disabled {
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+
+/* ================================
+   RODAPÉ
+================================ */
+
+.rodape {
+    border-top: 1px solid #FFFFFF;
+
+    padding-top: 15px;
+
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    font-size: 12px;
+}
+
+.rodape strong {
+    font-size: 14px;
+}
+
+.redes {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.redes-sociais {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.redes-sociais img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+/* ================================
+   COLUNA MAIN
+================================ */
+
+.main {
+    flex: 1;
+    background-color: #FFFFFF;
+    padding: 0 45px 30px;
+}
+
+
+/* ================================
+   CABEÇALHO
+================================ */
+
+.cabecalho {
+    height: 75px;
+
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    border-bottom: 1px solid #333333;
+}
+
+.btn-login {
+    background-color: #FFFFFF;
+    color: #333333;
+
+    border: 1px solid #333333;
+    border-radius: 5px;
+
+    padding: 9px 20px;
+
+    font-size: 15px;
+}
+
+.btn-login:hover {
+    background-color: #333333;
+    color: #FFFFFF;
+}
+
+
+/* ================================
+   FILTROS
+================================ */
+
+.filtros {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+
+    padding: 25px 0;
+}
+
+.filtro {
+    background-color: #333333;
+    color: #FFFFFF;
+
+    padding: 10px 25px;
+
+    border-radius: 5px;
+
+    font-size: 15px;
+}
+
+.filtro.ativo {
+    background-color: #483DAD;
+}
+
+.filtro:hover {
+    opacity: 0.85;
+}
+
+
+/* ================================
+   LISTAGEM DE ATIVIDADES
+================================ */
+
+.atividades {
+    max-width: 850px;
+    margin: 0 auto;
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+
+/* ================================
+   CARD
+================================ */
+
+.card {
+    border: 1px solid #333333;
+    border-radius: 8px;
+
+    background-color: #FFFFFF;
+
+    overflow: hidden;
+}
+
+
+/* Título */
+
+.card-titulo {
+    text-align: center;
+
+    background-color: #333333;
+    color: #FFFFFF;
+
+    padding: 10px;
+
+    font-size: 17px;
+    font-weight: 600;
+}
+
+
+/* Conteúdo */
+
+.card-conteudo {
+    display: flex;
+    gap: 25px;
+
+    padding: 20px;
+}
+
+
+/* Foto */
+
+.foto-usuario {
+    width: 100px;
+    height: 100px;
+
+    flex-shrink: 0;
+
+    background-color: #333333;
+    color: #FFFFFF;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 12px;
+}
+
+
+/* Informações */
+
+.informacoes {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.informacoes h2 {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.informacoes p {
+    font-size: 14px;
+}
+
+
+/* ================================
+   AÇÕES DO CARD
+================================ */
+
+.card-acoes {
+    border-top: 1px solid #333333;
+
+    display: flex;
+    justify-content: flex-end;
+
+    padding: 8px 15px;
+
+    gap: 15px;
+}
+
+.acao {
+    background-color: transparent;
+
+    font-size: 24px;
+
+    color: #333333;
+}
+
+.acao:hover {
+    color: #FF0000;
+}
+
+
+/* ================================
+   PAGINAÇÃO
+================================ */
+
+.paginacao {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+
+    margin-top: 30px;
+}
+
+.paginacao button {
+    width: 35px;
+    height: 35px;
+
+    background-color: #333333;
+    color: #FFFFFF;
+
+    border-radius: 4px;
+
+    font-size: 14px;
+}
+
+.paginacao button:hover {
+    background-color: #483DAD;
+}
+
+.paginacao .pagina-ativa {
+    background-color: #483DAD;
+}
+
+
+/* ================================
+   RESPONSIVIDADE
+================================ */
+
+@media (max-width: 800px) {
+
+    .pagina {
+        flex-direction: column;
+    }
+
+  .perfil {
+    width: 300px;
+    }
+
+    .main {
+        padding: 0 20px 30px;
+    }
+
+    .card-conteudo {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .informacoes {
+        align-items: center;
+    }
+}

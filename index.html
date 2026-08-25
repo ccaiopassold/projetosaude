@@ -1,0 +1,136 @@
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAEP Saúde</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="pagina">
+
+        <!-- COLUNA PERFIL -->
+        <aside class="perfil">
+
+            <div class="perfil-conteudo">
+
+                <div class="empresa">
+
+                    <img
+                        src="iconeSENAI_NOVA.png"
+                        alt="Logo SAEP Saúde"
+                        class="logo"
+                    >
+
+                    <h1>SAEP Saúde</h1>
+
+                </div>
+
+                <div class="totais">
+
+                    <div class="total">
+                        <span class="numero">20</span>
+                        <span class="descricao">Atividades</span>
+                    </div>
+
+                    <div class="total">
+                        <span class="numero">5.420</span>
+                        <span class="descricao">Calorias</span>
+                    </div>
+
+                </div>
+
+                <button class="btn-atividades" disabled>
+                    Atividades
+                </button>
+
+            </div>
+
+            <footer class="rodape">
+
+                <strong>SAEP Saúde</strong>
+
+                <div class="redes-sociais">
+
+                    <a href="#">
+                        <img src="x.png" alt="Twitter">
+                    </a>
+
+                    <a href="#">
+                        <img src="instagram.png" alt="Instagram">
+                    </a>
+
+                    <a href="#">
+                        <img src="tiktok.png" alt="TikTok">
+                    </a>
+
+                </div>
+
+                <span>© Copyright-2024</span>
+
+            </footer>
+
+        </aside>
+
+
+        <!-- COLUNA MAIN -->
+        <main class="main">
+
+            <!-- CABEÇALHO -->
+            <header class="cabecalho">
+
+                <button class="btn-login">
+                    Login
+                </button>
+
+            </header>
+
+
+            <!-- FILTROS -->
+            <section class="filtros">
+
+               <button class="filtro ativo" data-tipo="corrida">
+    Corrida
+</button>
+
+<button class="filtro" data-tipo="caminhada">
+    Caminhada
+</button>
+
+<button class="filtro" data-tipo="trilha">
+    Trilha
+</button>
+
+            </section>
+
+
+            <!-- LISTAGEM -->
+            <section class="atividades" id="lista-atividades">
+
+                <!--
+                    Os cards são criados dinamicamente
+                    pelo script.js a partir da API.
+                -->
+
+            </section>
+
+
+            <!-- PAGINAÇÃO -->
+            <nav class="paginacao" id="paginacao">
+</nav>
+
+        </main>
+
+    </div>
+
+
+    <!-- JAVASCRIPT -->
+    <script src="script.js"></script>
+
+</body>
+</html>
+```
