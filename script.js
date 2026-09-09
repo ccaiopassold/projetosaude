@@ -3,6 +3,15 @@ let tipoAtual = 'corrida';
 
 
 // =====================================================
+// CONTROLE DE LOGIN
+// =====================================================
+
+let usuarioLogado = JSON.parse(
+    localStorage.getItem('usuarioLogado')
+) || null;
+
+
+// =====================================================
 // EMPRESA
 // =====================================================
 
@@ -11,7 +20,7 @@ async function carregarEmpresa() {
     try {
 
         const resposta = await fetch(
-            'http://localhost:3000/empresa'
+            'http://localhost:3001/empresa'
         );
 
         if (!resposta.ok) {
@@ -47,7 +56,7 @@ async function carregarAtividades() {
     try {
 
         const resposta = await fetch(
-            `http://localhost:3000/atividades?page=${paginaAtual}&tipo=${tipoAtual}`
+            `http://localhost:3001/atividades?page=${paginaAtual}&tipo=${tipoAtual}`
         );
 
         if (!resposta.ok) {
@@ -166,11 +175,21 @@ function renderizarAtividades(atividades) {
 
             <div class="card-acoes">
 
-                <button class="acao" type="button">
+                <button
+                    class="acao"
+                    type="button"
+                    ${usuarioLogado ? '' : 'disabled'}
+                    title="${usuarioLogado ? 'Curtir atividade' : 'Faça login para curtir'}"
+                >
                     ♡
                 </button>
 
-                <button class="acao" type="button">
+                <button
+                    class="acao"
+                    type="button"
+                    ${usuarioLogado ? '' : 'disabled'}
+                    title="${usuarioLogado ? 'Comentar atividade' : 'Faça login para comentar'}"
+                >
                     💬
                 </button>
 
@@ -230,6 +249,10 @@ function configurarFiltros() {
 
         filtro.addEventListener('click', () => {
 
+            if (!usuarioLogado) {
+                return;
+            }
+
             filtros.forEach((item) => {
                 item.classList.remove('ativo');
             });
@@ -246,6 +269,7 @@ function configurarFiltros() {
         });
 
     });
+
 }
 
 
@@ -281,7 +305,15 @@ function renderizarPaginacao(totalPaginas) {
             botao.classList.add('pagina-ativa');
         }
 
+        if (!usuarioLogado) {
+            botao.disabled = true;
+        }
+
         botao.addEventListener('click', () => {
+
+            if (!usuarioLogado) {
+                return;
+            }
 
             paginaAtual = pagina;
 
@@ -297,10 +329,317 @@ function renderizarPaginacao(totalPaginas) {
 
 
 // =====================================================
+// LOGIN
+// =====================================================
+
+function configurarLogin() {
+
+    const btnLogin =
+        document.getElementById('btn-login');
+
+    const btnCancelar =
+        document.getElementById('btn-cancelar-login');
+
+    const modal =
+        document.getElementById('modal-login');
+
+    const form =
+        document.getElementById('form-login');
+
+    const mensagem =
+        document.getElementById('mensagem-login');
+
+
+    // -------------------------------------------------
+    // Clique no botão Login / Logout
+    // -------------------------------------------------
+
+    btnLogin.addEventListener('click', () => {
+
+        if (usuarioLogado) {
+
+            fazerLogout();
+
+            return;
+        }
+
+        mensagem.textContent = '';
+
+        modal.classList.add('aberto');
+
+        modal.setAttribute(
+            'aria-hidden',
+            'false'
+        );
+
+    });
+
+
+    // -------------------------------------------------
+    // Cancelar login
+    // -------------------------------------------------
+
+    btnCancelar.addEventListener('click', () => {
+
+        fecharModalLogin();
+
+    });
+
+
+    // -------------------------------------------------
+    // Enviar formulário
+    // -------------------------------------------------
+
+    form.addEventListener('submit', async (evento) => {
+
+        evento.preventDefault();
+
+        const email =
+            document.getElementById('email').value.trim();
+
+        const senha =
+            document.getElementById('senha').value;
+
+        mensagem.textContent = '';
+
+
+        // Validação no frontend
+        if (!email || !senha) {
+
+            mensagem.textContent =
+                'E-mail e senha são obrigatórios.';
+
+            return;
+        }
+
+
+        try {
+
+            const resposta = await fetch(
+                'http://localhost:3001/login',
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+                        email: email,
+                        senha: senha
+                    })
+                }
+            );
+
+
+            const dados =
+                await resposta.json();
+
+
+            // Login incorreto
+            if (!resposta.ok) {
+
+                mensagem.textContent =
+                    dados.mensagem ||
+                    'E-mail ou senha incorretos.';
+
+                return;
+            }
+
+
+            // Login realizado
+            usuarioLogado =
+                dados.usuario;
+
+            localStorage.setItem(
+                'usuarioLogado',
+                JSON.stringify(usuarioLogado)
+            );
+
+
+            console.log(
+                'Usuário logado:',
+                usuarioLogado
+            );
+
+
+            fecharModalLogin();
+
+            atualizarEstadoLogin();
+
+            paginaAtual = 1;
+
+            carregarAtividades();
+
+        } catch (erro) {
+
+            console.error(
+                'Erro ao realizar login:',
+                erro
+            );
+
+            mensagem.textContent =
+                'Não foi possível conectar ao servidor.';
+
+        }
+
+    });
+
+}
+
+
+// =====================================================
+// FECHAR MODAL
+// =====================================================
+
+function fecharModalLogin() {
+
+    const modal =
+        document.getElementById('modal-login');
+
+    const form =
+        document.getElementById('form-login');
+
+    const mensagem =
+        document.getElementById('mensagem-login');
+
+
+    modal.classList.remove('aberto');
+
+    modal.setAttribute(
+        'aria-hidden',
+        'true'
+    );
+
+    form.reset();
+
+    mensagem.textContent = '';
+
+}
+
+
+// =====================================================
+// LOGOUT
+// =====================================================
+
+function fazerLogout() {
+
+    usuarioLogado = null;
+
+    localStorage.removeItem(
+        'usuarioLogado'
+    );
+
+    atualizarEstadoLogin();
+
+    paginaAtual = 1;
+
+    tipoAtual = 'corrida';
+
+
+    // Volta o filtro para corrida
+    const filtros =
+        document.querySelectorAll('.filtro');
+
+    filtros.forEach((filtro) => {
+
+        filtro.classList.remove('ativo');
+
+        if (
+            filtro.dataset.tipo === 'corrida'
+        ) {
+            filtro.classList.add('ativo');
+        }
+
+    });
+
+
+    carregarAtividades();
+
+    console.log('Logout realizado.');
+
+}
+
+
+// =====================================================
+// ATUALIZAR ESTADO DO LOGIN
+// =====================================================
+
+function atualizarEstadoLogin() {
+
+    const btnLogin =
+        document.getElementById('btn-login');
+
+    const filtros =
+        document.querySelectorAll('.filtro');
+
+
+    // -------------------------------------------------
+    // Botão Login / Logout
+    // -------------------------------------------------
+
+    if (usuarioLogado) {
+
+        btnLogin.textContent = 'Logout';
+
+    } else {
+
+        btnLogin.textContent = 'Login';
+
+    }
+
+
+    // -------------------------------------------------
+    // Filtros
+    // -------------------------------------------------
+
+    filtros.forEach((filtro) => {
+
+        filtro.disabled = !usuarioLogado;
+
+    });
+
+
+    // -------------------------------------------------
+    // Curtidas e comentários
+    // -------------------------------------------------
+
+    const acoes =
+        document.querySelectorAll('.acao');
+
+    acoes.forEach((acao) => {
+
+        acao.disabled = !usuarioLogado;
+
+    });
+
+
+    // -------------------------------------------------
+    // Atualiza paginação existente
+    // -------------------------------------------------
+
+    const botoesPagina =
+        document.querySelectorAll('#paginacao button');
+
+    botoesPagina.forEach((botao) => {
+
+        botao.disabled = !usuarioLogado;
+
+    });
+
+}
+
+
+// =====================================================
 // INICIALIZAÇÃO
 // =====================================================
 
 configurarFiltros();
+
+configurarLogin();
+
+atualizarEstadoLogin();
 
 carregarEmpresa();
 

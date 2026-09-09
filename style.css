@@ -406,6 +406,169 @@ button {
     background-color: #483DAD;
 }
 
+/* ================================
+   MODAL DE LOGIN
+================================ */
+
+.modal-login {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background-color: rgba(0, 0, 0, 0.6);
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    z-index: 1000;
+}
+
+.modal-login.aberto {
+    display: flex;
+}
+
+
+.modal-conteudo {
+    width: 100%;
+    max-width: 400px;
+
+    background-color: #FFFFFF;
+
+    border-radius: 8px;
+
+    padding: 30px;
+
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+
+.modal-conteudo h2 {
+    text-align: center;
+
+    margin-bottom: 25px;
+
+    font-size: 24px;
+
+    color: #333333;
+}
+
+
+/* CAMPOS */
+
+.campo-login {
+    display: flex;
+
+    flex-direction: column;
+
+    margin-bottom: 18px;
+}
+
+
+.campo-login label {
+    margin-bottom: 6px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: #333333;
+}
+
+
+.campo-login input {
+    width: 100%;
+
+    padding: 11px;
+
+    border: 1px solid #333333;
+
+    border-radius: 5px;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    outline: none;
+}
+
+
+.campo-login input:focus {
+    border-color: #483DAD;
+}
+
+
+/* MENSAGEM */
+
+.mensagem-login {
+    min-height: 20px;
+
+    margin-bottom: 10px;
+
+    text-align: center;
+
+    font-size: 13px;
+
+    color: #FF0000;
+}
+
+
+/* BOTÕES */
+
+.modal-acoes {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 10px;
+}
+
+
+.btn-cancelar,
+.btn-confirmar {
+    padding: 10px 20px;
+
+    border-radius: 5px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+
+.btn-cancelar {
+    background-color: #FFFFFF;
+
+    color: #333333;
+
+    border: 1px solid #333333;
+}
+
+
+.btn-cancelar:hover {
+    background-color: #333333;
+
+    color: #FFFFFF;
+}
+
+
+.btn-confirmar {
+    background-color: #483DAD;
+
+    color: #FFFFFF;
+}
+
+
+.btn-confirmar:hover {
+    opacity: 0.85;
+}
 
 /* ================================
    RESPONSIVIDADE
