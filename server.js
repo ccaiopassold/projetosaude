@@ -8,6 +8,8 @@ const pool = require('./config/database');
 const empresaRoutes = require('./routes/empresaRoutes');
 const atividadeRoutes = require('./routes/atividadeRoutes');
 const loginRoutes = require('./routes/loginRoutes');
+const curtidaRoutes = require('./routes/curtidaRoutes');
+const comentarioRoutes = require('./routes/comentarioRoutes');
 
 const app = express();
 
@@ -18,6 +20,8 @@ app.use(express.json());
 app.use('/', empresaRoutes);
 app.use('/', atividadeRoutes);
 app.use('/', loginRoutes);
+app.use('/', curtidaRoutes);
+app.use('/', comentarioRoutes);
 
 // Rota de teste
 app.get('/status', async (req, res) => {

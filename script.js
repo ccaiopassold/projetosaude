@@ -24,9 +24,11 @@ async function carregarEmpresa() {
         );
 
         if (!resposta.ok) {
+
             throw new Error(
                 'Erro ao buscar dados da empresa'
             );
+
         }
 
         const empresa = await resposta.json();
@@ -44,6 +46,7 @@ async function carregarEmpresa() {
         );
 
     }
+
 }
 
 
@@ -60,9 +63,11 @@ async function carregarAtividades() {
         );
 
         if (!resposta.ok) {
+
             throw new Error(
                 'Erro ao buscar atividades'
             );
+
         }
 
         const dados = await resposta.json();
@@ -72,7 +77,7 @@ async function carregarAtividades() {
             dados
         );
 
-        renderizarAtividades(
+        await renderizarAtividades(
             dados.atividades
         );
 
@@ -88,6 +93,7 @@ async function carregarAtividades() {
         );
 
     }
+
 }
 
 
@@ -95,7 +101,7 @@ async function carregarAtividades() {
 // RENDERIZAR CARDS
 // =====================================================
 
-function renderizarAtividades(atividades) {
+async function renderizarAtividades(atividades) {
 
     const lista =
         document.getElementById(
@@ -104,6 +110,7 @@ function renderizarAtividades(atividades) {
 
     lista.innerHTML = '';
 
+
     if (!atividades || atividades.length === 0) {
 
         lista.innerHTML = `
@@ -111,14 +118,17 @@ function renderizarAtividades(atividades) {
         `;
 
         return;
+
     }
 
-    atividades.forEach((atividade) => {
+
+    for (const atividade of atividades) {
 
         const card =
             document.createElement('article');
 
         card.className = 'card';
+
 
         const calorias =
             calcularCalorias(
@@ -127,10 +137,68 @@ function renderizarAtividades(atividades) {
                 atividade.duracao_min
             );
 
+
+        // =================================================
+        // BUSCAR CURTIDAS
+        // =================================================
+
+        let totalCurtidas = 0;
+        let usuarioCurtiu = false;
+
+
+        try {
+
+            let url =
+                `http://localhost:3001/atividades/${atividade.id}/curtidas`;
+
+
+            if (usuarioLogado) {
+
+                url +=
+                    `?usuario_id=${usuarioLogado.id}`;
+
+            }
+
+
+            const respostaCurtidas =
+                await fetch(url);
+
+
+            if (respostaCurtidas.ok) {
+
+                const dadosCurtidas =
+                    await respostaCurtidas.json();
+
+
+                totalCurtidas =
+                    dadosCurtidas.total || 0;
+
+
+                usuarioCurtiu =
+                    dadosCurtidas.curtida || false;
+
+            }
+
+        } catch (erro) {
+
+            console.error(
+                'Erro ao carregar curtidas:',
+                erro
+            );
+
+        }
+
+
+        // =================================================
+        // HTML DO CARD
+        // =================================================
+
         card.innerHTML = `
+
             <div class="card-titulo">
                 ${atividade.tipo}
             </div>
+
 
             <div class="card-conteudo">
 
@@ -138,32 +206,42 @@ function renderizarAtividades(atividades) {
                     FOTO
                 </div>
 
+
                 <div class="informacoes">
 
                     <h2>
                         ${atividade.usuario}
                     </h2>
 
+
                     <p>
                         Distância:
+
                         <strong>
-                            ${Number(atividade.distancia_km).toFixed(2)} km
+                            ${Number(
+                                atividade.distancia_km
+                            ).toFixed(2)} km
                         </strong>
                     </p>
 
+
                     <p>
                         Duração:
+
                         <strong>
                             ${atividade.duracao_min} min
                         </strong>
                     </p>
 
+
                     <p>
                         Calorias:
+
                         <strong>
                             ${calorias} kcal
                         </strong>
                     </p>
+
 
                     <p>
                         ${atividade.data}
@@ -173,32 +251,551 @@ function renderizarAtividades(atividades) {
 
             </div>
 
+
             <div class="card-acoes">
 
                 <button
-                    class="acao"
+                    class="acao btn-curtir ${usuarioCurtiu ? 'curtido' : ''}"
                     type="button"
+                    data-atividade-id="${atividade.id}"
                     ${usuarioLogado ? '' : 'disabled'}
-                    title="${usuarioLogado ? 'Curtir atividade' : 'Faça login para curtir'}"
+                    title="${
+                        usuarioLogado
+                            ? 'Curtir atividade'
+                            : 'Faça login para curtir'
+                    }"
                 >
-                    ♡
+                    ${usuarioCurtiu ? '♥' : '♡'}
                 </button>
 
+
+                <span class="contador-curtidas">
+                    ${totalCurtidas}
+                </span>
+
+
                 <button
-                    class="acao"
+                    class="acao btn-comentar"
                     type="button"
+                    data-atividade-id="${atividade.id}"
                     ${usuarioLogado ? '' : 'disabled'}
-                    title="${usuarioLogado ? 'Comentar atividade' : 'Faça login para comentar'}"
+                    title="${
+                        usuarioLogado
+                            ? 'Comentar atividade'
+                            : 'Faça login para comentar'
+                    }"
                 >
                     💬
                 </button>
 
             </div>
+
         `;
+
 
         lista.appendChild(card);
 
-    });
+
+        // =================================================
+        // CONFIGURAR BOTÃO DE CURTIDA
+        // =================================================
+
+        const botaoCurtir =
+            card.querySelector(
+                '.btn-curtir'
+            );
+
+
+        botaoCurtir.addEventListener(
+            'click',
+            () => alternarCurtida(
+                atividade.id,
+                botaoCurtir
+            )
+        );
+
+
+        // =================================================
+        // CONFIGURAR BOTÃO DE COMENTÁRIO
+        // =================================================
+
+        const botaoComentar =
+            card.querySelector(
+                '.btn-comentar'
+            );
+
+
+        botaoComentar.addEventListener(
+            'click',
+            () => abrirComentarios(
+                atividade.id,
+                card
+            )
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// ALTERNAR CURTIDA
+// =====================================================
+
+async function alternarCurtida(
+    atividadeId,
+    botao
+) {
+
+    if (!usuarioLogado) {
+        return;
+    }
+
+
+    try {
+
+        const resposta =
+            await fetch(
+                'http://localhost:3001/curtidas',
+                {
+
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+
+                        usuario_id:
+                            usuarioLogado.id,
+
+                        atividade_id:
+                            atividadeId
+
+                    })
+
+                }
+            );
+
+
+        const dados =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            console.error(
+                'Erro ao alterar curtida:',
+                dados
+            );
+
+            return;
+
+        }
+
+
+        // =================================================
+        // ATUALIZA O CORAÇÃO
+        // =================================================
+
+        if (dados.curtida) {
+
+            botao.textContent = '♥';
+
+            botao.classList.add(
+                'curtido'
+            );
+
+        } else {
+
+            botao.textContent = '♡';
+
+            botao.classList.remove(
+                'curtido'
+            );
+
+        }
+
+
+        // =================================================
+        // ATUALIZA A QUANTIDADE
+        // =================================================
+
+        const respostaContagem =
+            await fetch(
+                `http://localhost:3001/atividades/${atividadeId}/curtidas`
+            );
+
+
+        const dadosContagem =
+            await respostaContagem.json();
+
+
+        const card =
+            botao.closest('.card');
+
+
+        const contador =
+            card.querySelector(
+                '.contador-curtidas'
+            );
+
+
+        contador.textContent =
+            dadosContagem.total;
+
+
+    } catch (erro) {
+
+        console.error(
+            'Erro ao alterar curtida:',
+            erro
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// COMENTÁRIOS
+// =====================================================
+
+async function abrirComentarios(
+    atividadeId,
+    card
+) {
+
+    if (!usuarioLogado) {
+        return;
+    }
+
+
+    let areaComentarios =
+        card.querySelector(
+            '.area-comentarios'
+        );
+
+
+    // Se já estiver aberto, fecha
+    if (areaComentarios) {
+
+        areaComentarios.remove();
+
+        return;
+
+    }
+
+
+    // Cria a área de comentários
+    areaComentarios =
+        document.createElement('div');
+
+    areaComentarios.className =
+        'area-comentarios';
+
+
+    areaComentarios.innerHTML = `
+
+        <div class="lista-comentarios">
+            <p>Carregando comentários...</p>
+        </div>
+
+
+        <div class="novo-comentario">
+
+            <input
+                type="text"
+                class="input-comentario"
+                placeholder="Escreva um comentário..."
+            >
+
+
+            <button
+                type="button"
+                class="btn-enviar-comentario"
+            >
+                Enviar
+            </button>
+
+        </div>
+
+    `;
+
+
+    card.appendChild(
+        areaComentarios
+    );
+
+
+    // =================================================
+    // BOTÃO ENVIAR
+    // =================================================
+
+    const botaoEnviar =
+        areaComentarios.querySelector(
+            '.btn-enviar-comentario'
+        );
+
+
+    botaoEnviar.addEventListener(
+        'click',
+        () => adicionarComentario(
+            atividadeId,
+            card
+        )
+    );
+
+
+    // =================================================
+    // ENTER PARA ENVIAR
+    // =================================================
+
+    const input =
+        areaComentarios.querySelector(
+            '.input-comentario'
+        );
+
+
+    input.addEventListener(
+        'keydown',
+        (evento) => {
+
+            if (evento.key === 'Enter') {
+
+                adicionarComentario(
+                    atividadeId,
+                    card
+                );
+
+            }
+
+        }
+    );
+
+
+    // Busca os comentários
+    await carregarComentarios(
+        atividadeId,
+        card
+    );
+
+}
+
+
+// =====================================================
+// CARREGAR COMENTÁRIOS
+// =====================================================
+
+async function carregarComentarios(
+    atividadeId,
+    card
+) {
+
+    try {
+
+        const resposta =
+            await fetch(
+                `http://localhost:3001/atividades/${atividadeId}/comentarios`
+            );
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                'Erro ao buscar comentários'
+            );
+
+        }
+
+
+        const dados =
+            await resposta.json();
+
+
+        const areaComentarios =
+            card.querySelector(
+                '.area-comentarios'
+            );
+
+
+        if (!areaComentarios) {
+            return;
+        }
+
+
+        const listaComentarios =
+            areaComentarios.querySelector(
+                '.lista-comentarios'
+            );
+
+
+        // =================================================
+        // NENHUM COMENTÁRIO
+        // =================================================
+
+        if (
+            !dados.comentarios ||
+            dados.comentarios.length === 0
+        ) {
+
+            listaComentarios.innerHTML = `
+                <p>Nenhum comentário ainda.</p>
+            `;
+
+            return;
+
+        }
+
+
+        // =================================================
+        // MOSTRAR COMENTÁRIOS
+        // =================================================
+
+        listaComentarios.innerHTML =
+            dados.comentarios
+                .map(
+                    (comentario) => `
+
+                        <div class="comentario">
+
+                            <strong>
+                                ${comentario.usuario}
+                            </strong>
+
+                            <p>
+                                ${comentario.texto}
+                            </p>
+
+                        </div>
+
+                    `
+                )
+                .join('');
+
+
+    } catch (erro) {
+
+        console.error(
+            'Erro ao carregar comentários:',
+            erro
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// ADICIONAR COMENTÁRIO
+// =====================================================
+
+async function adicionarComentario(
+    atividadeId,
+    card
+) {
+
+    if (!usuarioLogado) {
+        return;
+    }
+
+
+    const areaComentarios =
+        card.querySelector(
+            '.area-comentarios'
+        );
+
+
+    if (!areaComentarios) {
+        return;
+    }
+
+
+    const input =
+        areaComentarios.querySelector(
+            '.input-comentario'
+        );
+
+
+    const texto =
+        input.value.trim();
+
+
+    // Não permite comentário vazio
+    if (!texto) {
+        return;
+    }
+
+
+    try {
+
+        const resposta =
+            await fetch(
+                'http://localhost:3001/comentarios',
+                {
+
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+
+                        usuario_id:
+                            usuarioLogado.id,
+
+                        atividade_id:
+                            atividadeId,
+
+                        texto:
+                            texto
+
+                    })
+
+                }
+            );
+
+
+        const dados =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            console.error(
+                'Erro ao adicionar comentário:',
+                dados
+            );
+
+            return;
+
+        }
+
+
+        // Limpa o campo
+        input.value = '';
+
+
+        // Atualiza a lista
+        await carregarComentarios(
+            atividadeId,
+            card
+        );
+
+
+    } catch (erro) {
+
+        console.error(
+            'Erro ao adicionar comentário:',
+            erro
+        );
+
+    }
+
 }
 
 
@@ -206,33 +803,52 @@ function renderizarAtividades(atividades) {
 // CALCULAR CALORIAS
 // =====================================================
 
-function calcularCalorias(tipo, distancia, duracao) {
+function calcularCalorias(
+    tipo,
+    distancia,
+    duracao
+) {
 
     let calorias = 0;
 
-    switch (String(tipo).toLowerCase()) {
+
+    switch (
+        String(tipo).toLowerCase()
+    ) {
 
         case 'corrida':
+
             calorias =
                 (duracao / 60 * 60) +
                 (distancia * 30);
+
             break;
 
+
         case 'caminhada':
+
             calorias =
                 (duracao / 60 * 40) +
                 (distancia * 20);
+
             break;
 
+
         case 'trilha':
+
             calorias =
                 (duracao / 60 * 55) +
                 (distancia * 35);
+
             break;
 
     }
 
-    return Math.round(calorias);
+
+    return Math.round(
+        calorias
+    );
+
 }
 
 
@@ -243,30 +859,49 @@ function calcularCalorias(tipo, distancia, duracao) {
 function configurarFiltros() {
 
     const filtros =
-        document.querySelectorAll('.filtro');
+        document.querySelectorAll(
+            '.filtro'
+        );
+
 
     filtros.forEach((filtro) => {
 
-        filtro.addEventListener('click', () => {
+        filtro.addEventListener(
+            'click',
+            () => {
 
-            if (!usuarioLogado) {
-                return;
+                if (!usuarioLogado) {
+                    return;
+                }
+
+
+                filtros.forEach(
+                    (item) => {
+
+                        item.classList.remove(
+                            'ativo'
+                        );
+
+                    }
+                );
+
+
+                filtro.classList.add(
+                    'ativo'
+                );
+
+
+                tipoAtual =
+                    filtro.dataset.tipo;
+
+
+                paginaAtual = 1;
+
+
+                carregarAtividades();
+
             }
-
-            filtros.forEach((item) => {
-                item.classList.remove('ativo');
-            });
-
-            filtro.classList.add('ativo');
-
-            tipoAtual =
-                filtro.dataset.tipo;
-
-            paginaAtual = 1;
-
-            carregarAtividades();
-
-        });
+        );
 
     });
 
@@ -277,16 +912,28 @@ function configurarFiltros() {
 // PAGINAÇÃO
 // =====================================================
 
-function renderizarPaginacao(totalPaginas) {
+function renderizarPaginacao(
+    totalPaginas
+) {
 
     const paginacao =
-        document.getElementById('paginacao');
+        document.getElementById(
+            'paginacao'
+        );
+
 
     paginacao.innerHTML = '';
 
-    if (!totalPaginas || totalPaginas <= 1) {
+
+    if (
+        !totalPaginas ||
+        totalPaginas <= 1
+    ) {
+
         return;
+
     }
+
 
     for (
         let pagina = 1;
@@ -295,33 +942,58 @@ function renderizarPaginacao(totalPaginas) {
     ) {
 
         const botao =
-            document.createElement('button');
+            document.createElement(
+                'button'
+            );
+
 
         botao.type = 'button';
 
-        botao.textContent = pagina;
 
-        if (pagina === paginaAtual) {
-            botao.classList.add('pagina-ativa');
+        botao.textContent =
+            pagina;
+
+
+        if (
+            pagina === paginaAtual
+        ) {
+
+            botao.classList.add(
+                'pagina-ativa'
+            );
+
         }
+
 
         if (!usuarioLogado) {
+
             botao.disabled = true;
+
         }
 
-        botao.addEventListener('click', () => {
 
-            if (!usuarioLogado) {
-                return;
+        botao.addEventListener(
+            'click',
+            () => {
+
+                if (!usuarioLogado) {
+                    return;
+                }
+
+
+                paginaAtual =
+                    pagina;
+
+
+                carregarAtividades();
+
             }
+        );
 
-            paginaAtual = pagina;
 
-            carregarAtividades();
-
-        });
-
-        paginacao.appendChild(botao);
+        paginacao.appendChild(
+            botao
+        );
 
     }
 
@@ -335,156 +1007,209 @@ function renderizarPaginacao(totalPaginas) {
 function configurarLogin() {
 
     const btnLogin =
-        document.getElementById('btn-login');
-
-    const btnCancelar =
-        document.getElementById('btn-cancelar-login');
-
-    const modal =
-        document.getElementById('modal-login');
-
-    const form =
-        document.getElementById('form-login');
-
-    const mensagem =
-        document.getElementById('mensagem-login');
-
-
-    // -------------------------------------------------
-    // Clique no botão Login / Logout
-    // -------------------------------------------------
-
-    btnLogin.addEventListener('click', () => {
-
-        if (usuarioLogado) {
-
-            fazerLogout();
-
-            return;
-        }
-
-        mensagem.textContent = '';
-
-        modal.classList.add('aberto');
-
-        modal.setAttribute(
-            'aria-hidden',
-            'false'
+        document.getElementById(
+            'btn-login'
         );
 
-    });
+
+    const btnCancelar =
+        document.getElementById(
+            'btn-cancelar-login'
+        );
 
 
-    // -------------------------------------------------
-    // Cancelar login
-    // -------------------------------------------------
-
-    btnCancelar.addEventListener('click', () => {
-
-        fecharModalLogin();
-
-    });
+    const modal =
+        document.getElementById(
+            'modal-login'
+        );
 
 
-    // -------------------------------------------------
-    // Enviar formulário
-    // -------------------------------------------------
-
-    form.addEventListener('submit', async (evento) => {
-
-        evento.preventDefault();
-
-        const email =
-            document.getElementById('email').value.trim();
-
-        const senha =
-            document.getElementById('senha').value;
-
-        mensagem.textContent = '';
+    const form =
+        document.getElementById(
+            'form-login'
+        );
 
 
-        // Validação no frontend
-        if (!email || !senha) {
-
-            mensagem.textContent =
-                'E-mail e senha são obrigatórios.';
-
-            return;
-        }
+    const mensagem =
+        document.getElementById(
+            'mensagem-login'
+        );
 
 
-        try {
+    // =================================================
+    // BOTÃO LOGIN / LOGOUT
+    // =================================================
 
-            const resposta = await fetch(
-                'http://localhost:3001/login',
-                {
-                    method: 'POST',
+    btnLogin.addEventListener(
+        'click',
+        () => {
 
-                    headers: {
-                        'Content-Type':
-                            'application/json'
-                    },
+            if (usuarioLogado) {
 
-                    body: JSON.stringify({
-                        email: email,
-                        senha: senha
-                    })
-                }
-            );
-
-
-            const dados =
-                await resposta.json();
-
-
-            // Login incorreto
-            if (!resposta.ok) {
-
-                mensagem.textContent =
-                    dados.mensagem ||
-                    'E-mail ou senha incorretos.';
+                fazerLogout();
 
                 return;
+
             }
 
 
-            // Login realizado
-            usuarioLogado =
-                dados.usuario;
+            mensagem.textContent = '';
 
-            localStorage.setItem(
-                'usuarioLogado',
-                JSON.stringify(usuarioLogado)
+
+            modal.classList.add(
+                'aberto'
             );
 
 
-            console.log(
-                'Usuário logado:',
-                usuarioLogado
+            modal.setAttribute(
+                'aria-hidden',
+                'false'
             );
 
+        }
+    );
+
+
+    // =================================================
+    // CANCELAR LOGIN
+    // =================================================
+
+    btnCancelar.addEventListener(
+        'click',
+        () => {
 
             fecharModalLogin();
 
-            atualizarEstadoLogin();
+        }
+    );
 
-            paginaAtual = 1;
 
-            carregarAtividades();
+    // =================================================
+    // ENVIAR LOGIN
+    // =================================================
 
-        } catch (erro) {
+    form.addEventListener(
+        'submit',
+        async (evento) => {
 
-            console.error(
-                'Erro ao realizar login:',
-                erro
-            );
+            evento.preventDefault();
 
-            mensagem.textContent =
-                'Não foi possível conectar ao servidor.';
+
+            const email =
+                document
+                    .getElementById(
+                        'email'
+                    )
+                    .value
+                    .trim();
+
+
+            const senha =
+                document
+                    .getElementById(
+                        'senha'
+                    )
+                    .value;
+
+
+            mensagem.textContent = '';
+
+
+            // Validação
+            if (!email || !senha) {
+
+                mensagem.textContent =
+                    'E-mail e senha são obrigatórios.';
+
+                return;
+
+            }
+
+
+            try {
+
+                const resposta =
+                    await fetch(
+                        'http://localhost:3001/login',
+                        {
+
+                            method: 'POST',
+
+                            headers: {
+                                'Content-Type':
+                                    'application/json'
+                            },
+
+                            body: JSON.stringify({
+                                email: email,
+                                senha: senha
+                            })
+
+                        }
+                    );
+
+
+                const dados =
+                    await resposta.json();
+
+
+                if (!resposta.ok) {
+
+                    mensagem.textContent =
+                        dados.mensagem ||
+                        'E-mail ou senha incorretos.';
+
+                    return;
+
+                }
+
+
+                // Login realizado
+                usuarioLogado =
+                    dados.usuario;
+
+
+                localStorage.setItem(
+                    'usuarioLogado',
+                    JSON.stringify(
+                        usuarioLogado
+                    )
+                );
+
+
+                console.log(
+                    'Usuário logado:',
+                    usuarioLogado
+                );
+
+
+                fecharModalLogin();
+
+
+                atualizarEstadoLogin();
+
+
+                paginaAtual = 1;
+
+
+                carregarAtividades();
+
+
+            } catch (erro) {
+
+                console.error(
+                    'Erro ao realizar login:',
+                    erro
+                );
+
+
+                mensagem.textContent =
+                    'Não foi possível conectar ao servidor.';
+
+            }
 
         }
-
-    });
+    );
 
 }
 
@@ -496,23 +1221,36 @@ function configurarLogin() {
 function fecharModalLogin() {
 
     const modal =
-        document.getElementById('modal-login');
+        document.getElementById(
+            'modal-login'
+        );
+
 
     const form =
-        document.getElementById('form-login');
+        document.getElementById(
+            'form-login'
+        );
+
 
     const mensagem =
-        document.getElementById('mensagem-login');
+        document.getElementById(
+            'mensagem-login'
+        );
 
 
-    modal.classList.remove('aberto');
+    modal.classList.remove(
+        'aberto'
+    );
+
 
     modal.setAttribute(
         'aria-hidden',
         'true'
     );
 
+
     form.reset();
+
 
     mensagem.textContent = '';
 
@@ -527,37 +1265,57 @@ function fazerLogout() {
 
     usuarioLogado = null;
 
+
     localStorage.removeItem(
         'usuarioLogado'
     );
 
+
     atualizarEstadoLogin();
 
+
     paginaAtual = 1;
+
 
     tipoAtual = 'corrida';
 
 
     // Volta o filtro para corrida
     const filtros =
-        document.querySelectorAll('.filtro');
+        document.querySelectorAll(
+            '.filtro'
+        );
 
-    filtros.forEach((filtro) => {
 
-        filtro.classList.remove('ativo');
+    filtros.forEach(
+        (filtro) => {
 
-        if (
-            filtro.dataset.tipo === 'corrida'
-        ) {
-            filtro.classList.add('ativo');
+            filtro.classList.remove(
+                'ativo'
+            );
+
+
+            if (
+                filtro.dataset.tipo ===
+                'corrida'
+            ) {
+
+                filtro.classList.add(
+                    'ativo'
+                );
+
+            }
+
         }
-
-    });
+    );
 
 
     carregarAtividades();
 
-    console.log('Logout realizado.');
+
+    console.log(
+        'Logout realizado.'
+    );
 
 }
 
@@ -569,64 +1327,86 @@ function fazerLogout() {
 function atualizarEstadoLogin() {
 
     const btnLogin =
-        document.getElementById('btn-login');
+        document.getElementById(
+            'btn-login'
+        );
+
 
     const filtros =
-        document.querySelectorAll('.filtro');
+        document.querySelectorAll(
+            '.filtro'
+        );
 
 
-    // -------------------------------------------------
-    // Botão Login / Logout
-    // -------------------------------------------------
+    // =================================================
+    // BOTÃO LOGIN / LOGOUT
+    // =================================================
 
     if (usuarioLogado) {
 
-        btnLogin.textContent = 'Logout';
+        btnLogin.textContent =
+            'Logout';
 
     } else {
 
-        btnLogin.textContent = 'Login';
+        btnLogin.textContent =
+            'Login';
 
     }
 
 
-    // -------------------------------------------------
-    // Filtros
-    // -------------------------------------------------
+    // =================================================
+    // FILTROS
+    // =================================================
 
-    filtros.forEach((filtro) => {
+    filtros.forEach(
+        (filtro) => {
 
-        filtro.disabled = !usuarioLogado;
+            filtro.disabled =
+                !usuarioLogado;
 
-    });
+        }
+    );
 
 
-    // -------------------------------------------------
-    // Curtidas e comentários
-    // -------------------------------------------------
+    // =================================================
+    // CURTIDAS E COMENTÁRIOS
+    // =================================================
 
     const acoes =
-        document.querySelectorAll('.acao');
-
-    acoes.forEach((acao) => {
-
-        acao.disabled = !usuarioLogado;
-
-    });
+        document.querySelectorAll(
+            '.acao'
+        );
 
 
-    // -------------------------------------------------
-    // Atualiza paginação existente
-    // -------------------------------------------------
+    acoes.forEach(
+        (acao) => {
+
+            acao.disabled =
+                !usuarioLogado;
+
+        }
+    );
+
+
+    // =================================================
+    // PAGINAÇÃO
+    // =================================================
 
     const botoesPagina =
-        document.querySelectorAll('#paginacao button');
+        document.querySelectorAll(
+            '#paginacao button'
+        );
 
-    botoesPagina.forEach((botao) => {
 
-        botao.disabled = !usuarioLogado;
+    botoesPagina.forEach(
+        (botao) => {
 
-    });
+            botao.disabled =
+                !usuarioLogado;
+
+        }
+    );
 
 }
 
