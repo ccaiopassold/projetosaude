@@ -37,3 +37,4 @@ O Node.js é utilizado para executar o servidor backend da aplicação.
 Após instalar o Node.js, abra o terminal e execute:
 
 ```bash
+node --version
