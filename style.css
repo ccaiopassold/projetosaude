@@ -686,3 +686,166 @@ button {
 .btn-enviar-comentario:hover {
     opacity: 0.9;
 }
+
+
+/* =====================================================
+   CADASTRO DE ATIVIDADE
+   ===================================================== */
+
+.cadastro-atividade {
+    max-width: 850px;
+    margin: 30px auto;
+
+    padding: 25px;
+
+    border: 1px solid #333333;
+    border-radius: 8px;
+
+    background-color: #FFFFFF;
+}
+
+.cadastro-atividade h2 {
+    margin-bottom: 20px;
+
+    text-align: center;
+
+    color: #333333;
+
+    font-size: 22px;
+}
+
+
+/* =====================================================
+   FORMULÁRIO
+   ===================================================== */
+
+#form-atividade {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+}
+
+
+/* =====================================================
+   CAMPOS
+   ===================================================== */
+
+.campo-atividade {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+.campo-atividade label {
+    color: #333333;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+
+.campo-atividade input,
+.campo-atividade select,
+.campo-atividade textarea {
+    width: 100%;
+
+    padding: 11px;
+
+    border: 1px solid #333333;
+
+    border-radius: 5px;
+
+    background-color: #FFFFFF;
+
+    color: #333333;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    outline: none;
+}
+
+
+/* =====================================================
+   FOCO DOS CAMPOS
+   ===================================================== */
+
+.campo-atividade input:focus,
+.campo-atividade select:focus,
+.campo-atividade textarea:focus {
+    border-color: #483DAD;
+}
+
+
+/* =====================================================
+   TEXTAREA
+   ===================================================== */
+
+.campo-atividade textarea {
+    min-height: 100px;
+
+    resize: vertical;
+}
+
+
+/* =====================================================
+   MENSAGEM
+   ===================================================== */
+
+.mensagem-atividade {
+    min-height: 20px;
+
+    text-align: center;
+
+    font-size: 13px;
+
+    color: #FF0000;
+}
+
+
+/* =====================================================
+   BOTÃO CADASTRAR
+   ===================================================== */
+
+.btn-cadastrar-atividade {
+    width: 100%;
+
+    padding: 12px;
+
+    background-color: #483DAD;
+
+    color: #FFFFFF;
+
+    border-radius: 5px;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+.btn-cadastrar-atividade:hover {
+    opacity: 0.85;
+}
+
+
+/* =====================================================
+   RESPONSIVIDADE DO FORMULÁRIO
+   ===================================================== */
+
+@media (max-width: 800px) {
+
+    .cadastro-atividade {
+        margin: 25px auto;
+        padding: 20px;
+    }
+
+}

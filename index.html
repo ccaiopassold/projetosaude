@@ -123,7 +123,131 @@
             </section>
 
 
-            <!-- LISTAGEM -->
+            <!-- =====================================================
+                 FORMULÁRIO DE CADASTRO DE ATIVIDADE
+            ====================================================== -->
+
+            <section class="cadastro-atividade">
+
+                <h2>Crie sua atividade</h2>
+
+                <form id="form-atividade">
+
+                    <!-- TIPO -->
+                    <div class="campo-atividade">
+
+                        <label for="tipo-atividade">
+                            Tipo de atividade
+                        </label>
+
+                        <select
+                            id="tipo-atividade"
+                            name="tipo_atividade"
+                            required
+                        >
+
+                            <option value="">
+                                Selecione uma atividade
+                            </option>
+
+                            <option value="corrida">
+                                Corrida
+                            </option>
+
+                            <option value="caminhada">
+                                Caminhada
+                            </option>
+
+                            <option value="trilha">
+                                Trilha
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- DISTÂNCIA -->
+                    <div class="campo-atividade">
+
+                        <label for="distancia-atividade">
+                            Distância (km)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="distancia-atividade"
+                            name="distancia_km"
+                            placeholder="Ex.: 5"
+                            min="0.1"
+                            step="0.1"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- DURAÇÃO -->
+                    <div class="campo-atividade">
+
+                        <label for="duracao-atividade">
+                            Duração (minutos)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="duracao-atividade"
+                            name="duracao_min"
+                            placeholder="Ex.: 30"
+                            min="1"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- DESCRIÇÃO -->
+                    <div class="campo-atividade">
+
+                        <label for="descricao-atividade">
+                            Descrição
+                        </label>
+
+                        <textarea
+                            id="descricao-atividade"
+                            name="descricao"
+                            placeholder="Conte um pouco sobre sua atividade"
+                            maxlength="255"
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- MENSAGEM -->
+                    <div
+                        class="mensagem-atividade"
+                        id="mensagem-atividade"
+                    >
+                    </div>
+
+
+                    <!-- BOTÃO -->
+                    <button
+                        type="submit"
+                        class="btn-cadastrar-atividade"
+                    >
+                        Cadastrar atividade
+                    </button>
+
+                </form>
+
+            </section>
+
+
+            <!-- =====================================================
+                 LISTAGEM DE ATIVIDADES
+            ====================================================== -->
+
             <section
                 class="atividades"
                 id="lista-atividades"
@@ -132,7 +256,10 @@
             </section>
 
 
-            <!-- PAGINAÇÃO -->
+            <!-- =====================================================
+                 PAGINAÇÃO
+            ====================================================== -->
+
             <nav
                 class="paginacao"
                 id="paginacao"
@@ -160,6 +287,7 @@
 
             <form id="form-login">
 
+                <!-- E-MAIL -->
                 <div class="campo-login">
 
                     <label for="email">
@@ -176,6 +304,7 @@
                 </div>
 
 
+                <!-- SENHA -->
                 <div class="campo-login">
 
                     <label for="senha">
@@ -192,6 +321,7 @@
                 </div>
 
 
+                <!-- MENSAGEM DO LOGIN -->
                 <div
                     class="mensagem-login"
                     id="mensagem-login"
@@ -199,6 +329,7 @@
                 </div>
 
 
+                <!-- AÇÕES -->
                 <div class="modal-acoes">
 
                     <button

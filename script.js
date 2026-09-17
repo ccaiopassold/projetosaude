@@ -24,11 +24,9 @@ async function carregarEmpresa() {
         );
 
         if (!resposta.ok) {
-
             throw new Error(
                 'Erro ao buscar dados da empresa'
             );
-
         }
 
         const empresa = await resposta.json();
@@ -229,7 +227,9 @@ async function renderizarAtividades(atividades) {
                         Duração:
 
                         <strong>
-                            ${atividade.duracao_min} min
+                            ${formatarDuracaoHoras(
+                                atividade.duracao_min
+                            )} hora(s)
                         </strong>
                     </p>
 
@@ -246,6 +246,12 @@ async function renderizarAtividades(atividades) {
                     <p>
                         ${atividade.data}
                     </p>
+
+                    ${
+                        atividade.descricao
+                            ? `<p>${atividade.descricao}</p>`
+                            : ''
+                    }
 
                 </div>
 
@@ -396,10 +402,6 @@ async function alternarCurtida(
         }
 
 
-        // =================================================
-        // ATUALIZA O CORAÇÃO
-        // =================================================
-
         if (dados.curtida) {
 
             botao.textContent = '♥';
@@ -418,10 +420,6 @@ async function alternarCurtida(
 
         }
 
-
-        // =================================================
-        // ATUALIZA A QUANTIDADE
-        // =================================================
 
         const respostaContagem =
             await fetch(
@@ -479,7 +477,6 @@ async function abrirComentarios(
         );
 
 
-    // Se já estiver aberto, fecha
     if (areaComentarios) {
 
         areaComentarios.remove();
@@ -489,7 +486,6 @@ async function abrirComentarios(
     }
 
 
-    // Cria a área de comentários
     areaComentarios =
         document.createElement('div');
 
@@ -530,10 +526,6 @@ async function abrirComentarios(
     );
 
 
-    // =================================================
-    // BOTÃO ENVIAR
-    // =================================================
-
     const botaoEnviar =
         areaComentarios.querySelector(
             '.btn-enviar-comentario'
@@ -548,10 +540,6 @@ async function abrirComentarios(
         )
     );
 
-
-    // =================================================
-    // ENTER PARA ENVIAR
-    // =================================================
 
     const input =
         areaComentarios.querySelector(
@@ -576,7 +564,6 @@ async function abrirComentarios(
     );
 
 
-    // Busca os comentários
     await carregarComentarios(
         atividadeId,
         card
@@ -632,10 +619,6 @@ async function carregarComentarios(
             );
 
 
-        // =================================================
-        // NENHUM COMENTÁRIO
-        // =================================================
-
         if (
             !dados.comentarios ||
             dados.comentarios.length === 0
@@ -649,10 +632,6 @@ async function carregarComentarios(
 
         }
 
-
-        // =================================================
-        // MOSTRAR COMENTÁRIOS
-        // =================================================
 
         listaComentarios.innerHTML =
             dados.comentarios
@@ -674,7 +653,6 @@ async function carregarComentarios(
                     `
                 )
                 .join('');
-
 
     } catch (erro) {
 
@@ -723,7 +701,6 @@ async function adicionarComentario(
         input.value.trim();
 
 
-    // Não permite comentário vazio
     if (!texto) {
         return;
     }
@@ -776,11 +753,9 @@ async function adicionarComentario(
         }
 
 
-        // Limpa o campo
         input.value = '';
 
 
-        // Atualiza a lista
         await carregarComentarios(
             atividadeId,
             card
@@ -795,6 +770,259 @@ async function adicionarComentario(
         );
 
     }
+
+}
+
+
+// =====================================================
+// CADASTRO DE ATIVIDADE
+// =====================================================
+
+function configurarCadastroAtividade() {
+
+    const form =
+        document.getElementById(
+            'form-atividade'
+        );
+
+    const mensagem =
+        document.getElementById(
+            'mensagem-atividade'
+        );
+
+
+    if (!form) {
+        return;
+    }
+
+
+    form.addEventListener(
+        'submit',
+        async (evento) => {
+
+            evento.preventDefault();
+
+
+            if (!usuarioLogado) {
+
+                mensagem.textContent =
+                    'Faça login para cadastrar uma atividade.';
+
+                return;
+
+            }
+
+
+            const tipo =
+                document
+                    .getElementById(
+                        'tipo-atividade'
+                    )
+                    .value
+                    .trim();
+
+
+            const distancia =
+                document
+                    .getElementById(
+                        'distancia-atividade'
+                    )
+                    .value;
+
+
+            const duracao =
+                document
+                    .getElementById(
+                        'duracao-atividade'
+                    )
+                    .value;
+
+
+            const descricao =
+                document
+                    .getElementById(
+                        'descricao-atividade'
+                    )
+                    .value
+                    .trim();
+
+
+            mensagem.textContent = '';
+
+
+            if (
+                !tipo ||
+                !distancia ||
+                !duracao
+            ) {
+
+                mensagem.textContent =
+                    'Preencha todos os campos obrigatórios.';
+
+                return;
+
+            }
+
+
+            if (Number(distancia) <= 0) {
+
+                mensagem.textContent =
+                    'A distância deve ser maior que zero.';
+
+                return;
+
+            }
+
+
+            if (Number(duracao) <= 0) {
+
+                mensagem.textContent =
+                    'A duração deve ser maior que zero.';
+
+                return;
+
+            }
+
+
+            try {
+
+                const resposta =
+                    await fetch(
+                        'http://localhost:3001/atividades',
+                        {
+
+                            method: 'POST',
+
+                            headers: {
+                                'Content-Type':
+                                    'application/json'
+                            },
+
+                            body: JSON.stringify({
+
+                                usuario_id:
+                                    usuarioLogado.id,
+
+                                tipo_atividade:
+                                    tipo,
+
+                                distancia_km:
+                                    Number(distancia),
+
+                                duracao_min:
+                                    Number(duracao),
+
+                                descricao:
+                                    descricao || null
+
+                            })
+
+                        }
+                    );
+
+
+                const dados =
+                    await resposta.json();
+
+
+                if (!resposta.ok) {
+
+                    mensagem.textContent =
+                        dados.mensagem ||
+                        'Erro ao cadastrar atividade.';
+
+                    return;
+
+                }
+
+
+                mensagem.textContent =
+                    'Atividade cadastrada com sucesso!';
+
+
+                form.reset();
+
+
+                paginaAtual = 1;
+
+
+                // Mostra imediatamente o tipo
+                // da atividade recém-cadastrada
+                tipoAtual = tipo;
+
+
+                // Atualiza o filtro visual
+                const filtros =
+                    document.querySelectorAll(
+                        '.filtro'
+                    );
+
+
+                filtros.forEach(
+                    (filtro) => {
+
+                        filtro.classList.remove(
+                            'ativo'
+                        );
+
+
+                        if (
+                            filtro.dataset.tipo ===
+                            tipo
+                        ) {
+
+                            filtro.classList.add(
+                                'ativo'
+                            );
+
+                        }
+
+                    }
+                );
+
+
+                // Atualiza a lista
+                await carregarAtividades();
+
+
+            } catch (erro) {
+
+                console.error(
+                    'Erro ao cadastrar atividade:',
+                    erro
+                );
+
+
+                mensagem.textContent =
+                    'Não foi possível conectar ao servidor.';
+
+            }
+
+        }
+    );
+
+}
+
+
+// =====================================================
+// CONVERTER DURAÇÃO PARA HORAS
+// =====================================================
+
+function formatarDuracaoHoras(
+    duracaoMin
+) {
+
+    const horas =
+        Number(duracaoMin) / 60;
+
+
+    return horas.toLocaleString(
+        'pt-BR',
+        {
+            minimumFractionDigits: 1,
+            maximumFractionDigits: 2
+        }
+    );
 
 }
 
@@ -864,46 +1092,48 @@ function configurarFiltros() {
         );
 
 
-    filtros.forEach((filtro) => {
+    filtros.forEach(
+        (filtro) => {
 
-        filtro.addEventListener(
-            'click',
-            () => {
+            filtro.addEventListener(
+                'click',
+                () => {
 
-                if (!usuarioLogado) {
-                    return;
-                }
-
-
-                filtros.forEach(
-                    (item) => {
-
-                        item.classList.remove(
-                            'ativo'
-                        );
-
+                    if (!usuarioLogado) {
+                        return;
                     }
-                );
 
 
-                filtro.classList.add(
-                    'ativo'
-                );
+                    filtros.forEach(
+                        (item) => {
+
+                            item.classList.remove(
+                                'ativo'
+                            );
+
+                        }
+                    );
 
 
-                tipoAtual =
-                    filtro.dataset.tipo;
+                    filtro.classList.add(
+                        'ativo'
+                    );
 
 
-                paginaAtual = 1;
+                    tipoAtual =
+                        filtro.dataset.tipo;
 
 
-                carregarAtividades();
+                    paginaAtual = 1;
 
-            }
-        );
 
-    });
+                    carregarAtividades();
+
+                }
+            );
+
+        }
+    );
 
 }
 
@@ -1036,10 +1266,6 @@ function configurarLogin() {
         );
 
 
-    // =================================================
-    // BOTÃO LOGIN / LOGOUT
-    // =================================================
-
     btnLogin.addEventListener(
         'click',
         () => {
@@ -1070,10 +1296,6 @@ function configurarLogin() {
     );
 
 
-    // =================================================
-    // CANCELAR LOGIN
-    // =================================================
-
     btnCancelar.addEventListener(
         'click',
         () => {
@@ -1083,10 +1305,6 @@ function configurarLogin() {
         }
     );
 
-
-    // =================================================
-    // ENVIAR LOGIN
-    // =================================================
 
     form.addEventListener(
         'submit',
@@ -1115,7 +1333,6 @@ function configurarLogin() {
             mensagem.textContent = '';
 
 
-            // Validação
             if (!email || !senha) {
 
                 mensagem.textContent =
@@ -1164,7 +1381,6 @@ function configurarLogin() {
                 }
 
 
-                // Login realizado
                 usuarioLogado =
                     dados.usuario;
 
@@ -1280,7 +1496,6 @@ function fazerLogout() {
     tipoAtual = 'corrida';
 
 
-    // Volta o filtro para corrida
     const filtros =
         document.querySelectorAll(
             '.filtro'
@@ -1338,10 +1553,6 @@ function atualizarEstadoLogin() {
         );
 
 
-    // =================================================
-    // BOTÃO LOGIN / LOGOUT
-    // =================================================
-
     if (usuarioLogado) {
 
         btnLogin.textContent =
@@ -1355,10 +1566,6 @@ function atualizarEstadoLogin() {
     }
 
 
-    // =================================================
-    // FILTROS
-    // =================================================
-
     filtros.forEach(
         (filtro) => {
 
@@ -1368,10 +1575,6 @@ function atualizarEstadoLogin() {
         }
     );
 
-
-    // =================================================
-    // CURTIDAS E COMENTÁRIOS
-    // =================================================
 
     const acoes =
         document.querySelectorAll(
@@ -1388,10 +1591,6 @@ function atualizarEstadoLogin() {
         }
     );
 
-
-    // =================================================
-    // PAGINAÇÃO
-    // =================================================
 
     const botoesPagina =
         document.querySelectorAll(
@@ -1418,6 +1617,8 @@ function atualizarEstadoLogin() {
 configurarFiltros();
 
 configurarLogin();
+
+configurarCadastroAtividade();
 
 atualizarEstadoLogin();
 
